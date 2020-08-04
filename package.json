@@ -11,13 +11,10 @@
     "name": "Max Geldner",
     "email": "max.sgeldner@t-online.de"
   }],
-  "homepage": "https://github.com/gil/gulp-include-source",
+  "homepage": "https://github.com/MaxGeldner/gulp-include-source",
   "repository": {
     "type": "git",
-    "url": "git://github.com/gil/gulp-include-source.git"
-  },
-  "bugs": {
-    "url": "https://github.com/gil/gulp-include-source/issues"
+    "url": "https://github.com/MaxGeldner/gulp-include-source"
   },
   "readmeFilename": "README.md",
   "main": "index.js",
