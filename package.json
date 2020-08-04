@@ -1,6 +1,6 @@
 {
   "name": "@maxgeldner/gulp-include-source-extended",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Include scripts and styles into your HTML files automatically.",
   "author": {
     "name": "André Gil",
