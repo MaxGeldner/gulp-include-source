@@ -1,5 +1,5 @@
 {
-  "name": "gulp-include-source",
+  "name": "@maxgeldner/gulp-include-source-extended",
   "version": "0.0.5",
   "description": "Include scripts and styles into your HTML files automatically.",
   "author": {
@@ -7,6 +7,10 @@
     "email": "hey@andregil.org",
     "url": "http://somepixels.net/"
   },
+  "contributors": [{
+    "name": "Max Geldner",
+    "email": "max.geldner@t-online.de"
+  }],
   "homepage": "https://github.com/gil/gulp-include-source",
   "repository": {
     "type": "git",

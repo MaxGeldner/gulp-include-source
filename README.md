@@ -27,6 +27,12 @@ gulp.task('html', function() {
 ```
 
 #### index.html
+Files that should be added to the output can be marked with `<!-- include:js(...) -->`.
+
+Files that should NOT be added to the output can be marked with `<!-- !include:js(...) -->`. Always add these files to
+the very beginning of your include list! You cannot exclude directories or placeholder names (until now).
+
+Your file list will not contain duplicated at the end.
 
 ```html
 <html>
@@ -34,6 +40,7 @@ gulp.task('html', function() {
   <!-- include:css(style/**/*.css) -->
 </head>
 <body>
+  <!-- !include:js(script/myFolder/badScript.js) -->
   <!-- include:js(list:vendorList) -->
   <!-- include:js(script/**/*.js) -->
 </body>
