@@ -1,6 +1,6 @@
 # gulp-include-source
 
-Gulp plugin to include scripts and styles into your HTML files automatically.
+Gulp plugin to include scripts into your HTML files automatically.
 
 ## Important notice
 This is a modification of the original package gulp-include-source.
@@ -9,7 +9,7 @@ It is optimized for:
 - De-duplicating the include list
 - It should mostly be used if you want your include instructions file to be the same file where the actual include statements will later go to!
 
-If these optimization are not important for you, use the original!
+If these optimization are not important for you, use the original! Also the plugin extension looses the ability to include style files! Also use the original if you want to do this! (Maybe style files including with the above mentioned optimizations will be added later)
 
 
 
@@ -56,13 +56,10 @@ Your file list will not contain duplicated include statements at the end.
 
 ```html
 <html>
-<head>
-  <!-- include:css(style/**/*.css) -->
-</head>
 <body>
   <gulp-include-instructions>
       <!-- !include:js(script/myFolder/badScript.js) -->
-      <!-- include:js(list:vendorList) -->
+      <!-- include:js(index.js) -->
       <!-- include:js(script/**/*.js) -->
   </gulp-include-instructions>
     
@@ -74,9 +71,6 @@ Your file list will not contain duplicated include statements at the end.
 Will result in:
 ```html
 <html>
-<head>
-  <!-- include:css(style/**/*.css) -->
-</head>
 <body>
   <gulp-include-instructions>
       <!-- !include:js(script/myFolder/badScript.js) -->
