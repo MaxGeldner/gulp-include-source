@@ -1,18 +1,24 @@
 'use strict';
 
 var through = require('through2'),
-    glob = require('glob'),
-    path = require('path'),
-    replaceExt = require('replace-ext'),
-    gutil = require('gulp-util'),
-    fs = require('fs'),
-    PluginError = gutil.PluginError;
+  glob = require('glob'),
+  path = require('path'),
+  replaceExt = require('replace-ext'),
+  gutil = require('gulp-util'),
+  fs = require('fs'),
+  PluginError = gutil.PluginError;
 
 var PLUGIN_NAME = 'gulp-include-source';
 
 var placeholders = {
   'js' : '<script src="%"></script>',
   'css' : '<link rel="stylesheet" href="%">'
+};
+
+// These are the tags that define the instruction and the statements area in the give file. Escape slashes!
+let tags = {
+  instructions: ['<gulp-include-instructions>', '<\/gulp-include-instructions>'],
+  statements: ['<gulp-include>', '<\/gulp-include>']
 };
 
 var alreadyMergedFiles = [];
@@ -60,12 +66,25 @@ function deleteDuplicates(filesToCheck) {
   });
 }
 
+/**
+ * Finds the relevant part, the one with the instructions, from the content string.
+ * @param content The full content of the file.
+ * @return {*} Only the instruction comments.
+ */
+function prepareContent(content) {
+  let regex = new RegExp("(" + tags.instructions[0] + ").*(" + tags.instructions[1] + ")", "gms")
+  let prepared = [...content.matchAll(regex)][0]
+  return prepared[0].replace(prepared[1], '').replace(prepared[2], '')
+}
+
 function injectFiles(file, options) {
+  // The full content of the read file. Will be used later to build the file again.
+  let fullContent = file.contents.toString();
+  // Only the content that matters to the plugin. Will be used the replace the include instructions for includes statements.
+  var contents = prepareContent(file.contents.toString());
 
-  var contents = file.contents.toString();
-
-  // adds files that should not be included ()
-  contents.split('\r\n').forEach((line) => {
+  // Adds files that should not be included to the alreadyMergedFiles array. They will be ignored in the while loop.
+  contents.replace('\r\n', '\n').split('\n').forEach((line) => {
     let lineMatches = matchNotExpression(line);
     if (lineMatches !== null) {
       alreadyMergedFiles.push(lineMatches[2]);
@@ -75,8 +94,8 @@ function injectFiles(file, options) {
   var cwd = options.cwd || path.dirname(file.path);
   var matches = matchExpressions(contents);
 
-  while( matches ) {
-
+  // Iterate over all lines, replace the instructions with the statements (only in the content string, fullContent stays untouched!).
+  while(matches) {
     var type = matches[1];
     var placeholder = placeholders[ type ];
     var files = deleteDuplicates(parseFiles(matches[2], cwd));
@@ -84,19 +103,32 @@ function injectFiles(file, options) {
 
     var includes = '';
 
-    if( placeholder && files && files.length > 0 ) {
-
+    if(placeholder && files && files.length > 0) {
       includes = files.map(function(filename) {
         filename = replaceExtension(filename, type, options);
         return placeholder.split('%').join(filename);
       }).join('\n');
     }
 
+    // Concats: Everything fro start of file to the position of the current match + the include statement(s) + everything from the end of the include comment to the end of the file
     contents = contents.substring(0, matches.index) + includes + contents.substring(matches.index + matches[0].length);
     matches = matchExpressions(contents);
   }
 
-  return contents;
+  // Find indexes where the statment tags start and end.
+  let gulpIncludeStartPos = fullContent.indexOf(tags.statements[0]) + tags.statements[0].length;
+  let gulpIncludeEndPos = fullContent.indexOf(tags.statements[1]);
+
+  // Delete any content that before was in the statement tag.
+  fullContent = fullContent.slice(0, gulpIncludeStartPos) + fullContent.slice(gulpIncludeEndPos);
+
+  // Include the generated statements into the statement tags body.
+  let modifiedContent = [fullContent.slice(0, gulpIncludeStartPos),
+    contents,
+    fullContent.slice(gulpIncludeStartPos)].join('');
+
+  // Modified content now is the complete content (the instructions, the statements and the whole rest of the file).
+  return modifiedContent;
 }
 
 function gulpIncludeSource(options) {
